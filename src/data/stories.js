@@ -17,6 +17,17 @@
 export const stories = [
   {
     id: "exec",
+    name: "Maria Chen",
+    where: "Glean Assistant",
+    whereLogo: "glean",
+    recap: "The numbers and the reasons, in one answer",
+    situation:
+      "Maria runs Riverbend for Clayco. Building 2 concrete is over budget, and she meets the owner on Thursday. Today that means two days of cost reports, email threads, and meeting notes.",
+    watch: [
+      "Snowflake numbers (blue) and the reasons from conversations and docs (purple), in one answer",
+      "Every claim links to its source",
+      "Glean drafts the owner update for her",
+    ],
     slug: "project-executive",
     role: "Project Executive",
     person: "maria",
@@ -36,6 +47,17 @@ export const stories = [
   },
   {
     id: "field",
+    name: "Luis Romero",
+    where: "Microsoft Teams",
+    whereLogo: "teams",
+    recap: "Work done in ServiceNow, from Teams",
+    situation:
+      "Luis is the superintendent at Riverbend. Priya, a new field engineer, starts Monday. Today that means a ServiceNow form, three follow-ups, and hoping her laptop arrives in time.",
+    watch: [
+      "Luis never leaves Teams",
+      "Glean builds the request from Clayco's own onboarding standard",
+      "Glean files the request in ServiceNow and routes the approval",
+    ],
     slug: "superintendent",
     role: "Superintendent",
     person: "luis",
@@ -55,6 +77,17 @@ export const stories = [
   },
   {
     id: "data",
+    name: "Kim Alvarez",
+    where: "Snowflake Intelligence",
+    whereLogo: "snowflake",
+    recap: "Your Snowflake agents, now with context",
+    situation:
+      "Clayco's Data & AI team built a Concrete Pour Agent in Snowflake, and people love it for the numbers. Kim, a project manager, asks it why costs jumped. It can't say.",
+    watch: [
+      "Glean is added to the agent as one tool",
+      "The agent answers as Kim, with Kim's permissions",
+      "No pipelines or permission syncing to build",
+    ],
     slug: "data-team",
     role: "Data & AI Team",
     person: "kim",
@@ -74,6 +107,17 @@ export const stories = [
   },
   {
     id: "security",
+    name: "Security review",
+    where: "Glean Assistant",
+    whereLogo: "glean",
+    recap: "The right answer for each person",
+    situation:
+      "Before anything goes live, security asks the hard question: what happens when someone asks about something they shouldn't see? Maria, Luis, and Priya all ask about a supplier dispute.",
+    watch: [
+      "Each person gets a different answer, and each answer is correct for them",
+      "Glean applies the permissions already in M365 and Snowflake",
+      "Every answer is logged",
+    ],
     slug: "security",
     role: "CISO / IT Security",
     person: null,
@@ -92,5 +136,8 @@ export const stories = [
     ],
   },
 ];
+
+export const SCENARIO =
+  "Riverbend Data Center, Building 2: concrete is running over budget.";
 
 export const CLOSE_SLUG = "next-step";

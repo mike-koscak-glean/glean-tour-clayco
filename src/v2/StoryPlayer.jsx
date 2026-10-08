@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import claycoLogo from "../clayco_logo.png";
-import { stories } from "../data/stories";
-import { GleanLogo, StoryCtx } from "./ui";
+import { stories, SCENARIO } from "../data/stories";
+import { GleanLogo, StoryCtx, Avatar, Logo } from "./ui";
+import SceneBrief from "./SceneBrief";
 import ExecStory from "./stories/ExecStory";
 import FieldStory from "./stories/FieldStory";
 import DataStory from "./stories/DataStory";
@@ -26,6 +27,8 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
   const story = stories[storyIdx];
   const View = VIEWS[story.id];
   const [step, setStep] = useState(0);
+  const [briefOpen, setBriefOpen] = useState(true);
+  const [started, setStarted] = useState(false);
   const last = story.steps.length - 1;
   const cur = story.steps[step];
   const nextStory = stories[storyIdx + 1];
@@ -39,16 +42,28 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
     if (step > 0) setStep((s) => s - 1);
   }, [step]);
 
+  const startScene = useCallback(() => {
+    setBriefOpen(false);
+    setStarted(true);
+  }, []);
+
   // Autoplay
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || briefOpen || !started) return;
     const t = setTimeout(next, cur.ms);
     return () => clearTimeout(t);
-  }, [playing, step, next, cur.ms]);
+  }, [playing, step, next, cur.ms, briefOpen, started]);
 
   // Keyboard
   useEffect(() => {
     const h = (e) => {
+      if (briefOpen) {
+        if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter" || e.key === "Escape") {
+          e.preventDefault();
+          startScene();
+        }
+        return;
+      }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
         e.preventDefault();
         next();
@@ -63,18 +78,20 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [next, prev, onHome, setPlaying]);
+  }, [next, prev, onHome, setPlaying, briefOpen, startScene]);
 
-  const caption = cur.outcome
+  const caption = !started
+    ? `Meet ${story.name === "Security review" ? "the security review" : story.name.split(" ")[0]}. Read the scene brief, then start.`
+    : cur.outcome
     ? nextStory
       ? `Up next: ${nextStory.role}. "${nextStory.question}"`
       : "Up next: what this could look like at Clayco."
     : cur.caption;
 
-  const ctaLabel = step < last ? cur.cta : nextStory ? `Next story: ${nextStory.role}` : "See what's next";
+  const ctaLabel = step < last ? cur.cta : nextStory ? `Next scene: ${nextStory.role}` : "See what's next";
 
   return (
-    <StoryCtx.Provider value={{ cta: ctaLabel, onNext: next, show: !playing && !clean }}>
+    <StoryCtx.Provider value={{ cta: ctaLabel, onNext: next, show: started && !briefOpen && !playing && !clean }}>
     <div className="h-screen w-screen flex flex-col bg-[#FAF8F4] overflow-hidden">
       {/* Header */}
       <div className="h-14 flex items-center justify-between px-5 sm:px-7 flex-shrink-0">
@@ -83,28 +100,48 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
           <span className="text-gray-300">×</span>
           <img src={claycoLogo} alt="Clayco" className="h-[18px] mix-blend-multiply" draggable="false" />
         </button>
-        <div className="hidden md:flex items-center gap-1 bg-white border border-[#E9E5DE] rounded-full p-1">
-          {stories.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => onOpen(i)}
-              className={`text-[12.5px] font-medium rounded-full px-3.5 py-1.5 transition ${
-                i === storyIdx ? "bg-[#14152B] text-white" : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {s.role}
-            </button>
-          ))}
+        <div className="hidden md:flex items-center gap-3 bg-white border border-[#E9E5DE] rounded-full pl-1.5 pr-1.5 py-1 text-[12.5px]">
+          <span className="flex items-center gap-1 pl-1">
+            {stories.map((st, i) => (
+              <span key={st.id} className={`h-1.5 rounded-full transition-all ${i === storyIdx ? "w-5 bg-[#343CED]" : i < storyIdx ? "w-1.5 bg-[#343CED]/50" : "w-1.5 bg-gray-300"}`} />
+            ))}
+          </span>
+          <span className="font-semibold text-gray-800">
+            Scene {storyIdx + 1} of {stories.length}
+          </span>
+          <span className="text-gray-300">|</span>
+          <span className="flex items-center gap-1.5 text-gray-700">
+            {story.person && <Avatar person={story.person} size={18} />}
+            {story.name}, {story.role}
+          </span>
+          <span className="text-gray-300">|</span>
+          <span className="flex items-center gap-1.5 text-gray-500">
+            <Logo id={story.whereLogo} size={13} /> {story.where}
+          </span>
+          <button
+            onClick={() => setBriefOpen(true)}
+            className="ml-1 flex items-center gap-1.5 rounded-full bg-[#F2F3FF] text-[#343CED] font-semibold px-3 py-1 hover:bg-[#E7E8FD] transition"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><line x1="12" y1="11" x2="12" y2="16" /><line x1="12" y1="8" x2="12" y2="8" /></svg>
+            Scene brief
+          </button>
         </div>
         <button onClick={onHome} className="text-[12.5px] text-gray-500 hover:text-gray-800">
-          All stories
+          Exit tour
         </button>
+      </div>
+
+      {/* Scenario strip */}
+      <div className="flex-shrink-0 px-4 sm:px-7 pb-2.5">
+        <div className="max-w-[1240px] mx-auto flex items-center gap-2 text-[12.5px] text-gray-500">
+          <span className="font-semibold text-gray-700">The scenario:</span> {SCENARIO}
+        </div>
       </div>
 
       {/* Stage */}
       <div className="flex-1 min-h-0 px-4 sm:px-7">
         <div className="h-full max-w-[1240px] mx-auto">
-          <View step={step} onNext={next} />
+          <View step={started ? step : -1} onNext={next} />
         </div>
       </div>
 
@@ -113,7 +150,7 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
         <div className="max-w-[1240px] mx-auto flex items-center gap-5 bg-white border border-[#E9E5DE] rounded-2xl px-5 py-3.5 shadow-sm">
           <div className="hidden lg:block w-[210px] flex-shrink-0">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-              Story {storyIdx + 1} of {stories.length} · {story.role}
+              Scene {storyIdx + 1} of {stories.length} · {story.role}
             </div>
             <div className="text-[13px] text-gray-700 font-medium truncate">{story.title}</div>
             <div className="flex gap-1 mt-2">
@@ -157,7 +194,7 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
                   ""
                 }`}
               >
-                {step < last ? "Next" : nextStory ? "Next story" : "What's next"}
+                {step < last ? "Next" : nextStory ? "Next scene" : "What's next"}
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
@@ -166,6 +203,7 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
           )}
         </div>
       </div>
+      {briefOpen && <SceneBrief idx={storyIdx} onStart={startScene} autoplay={playing} resumed={started} />}
     </div>
     </StoryCtx.Provider>
   );
