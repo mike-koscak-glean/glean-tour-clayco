@@ -96,7 +96,7 @@ export default function App() {
   } else if (route.view === "close") {
     body = <Close onOpen={openStory} onHome={goHome} />;
   } else {
-    body = <Landing onOpen={openStory} onPlayAll={playAll} />;
+    body = <Landing onOpen={openStory} />;
   }
 
   return (
