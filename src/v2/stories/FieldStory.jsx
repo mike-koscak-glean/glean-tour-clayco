@@ -146,7 +146,7 @@ export default function FieldStory({ step }) {
 
       {step >= 6 && (
         <Block>
-          <Outcome text="Nobody opened ServiceNow. Priya is ready on Monday." sub="Luis asked once in Teams. IT received one complete ticket, not three partial ones." />
+          <Outcome text="Nobody opened ServiceNow. Priya is ready on Monday." sub="One ask in Teams. One clean ticket for IT." />
         </Block>
       )}
     </TeamsFrame>

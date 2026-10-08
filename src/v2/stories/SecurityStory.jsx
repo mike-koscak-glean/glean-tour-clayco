@@ -171,7 +171,7 @@ export default function SecurityStory({ step }) {
 
       {step >= 5 && (
         <Block>
-          <Outcome text="Same question. The right answer for each person." sub="Snowflake row policies and M365 permissions apply as they do today. No permissions were rebuilt." />
+          <Outcome text="Same question. The right answer for each person." sub="Your existing permissions, enforced. Nothing rebuilt." />
         </Block>
       )}
     </GleanFrame>

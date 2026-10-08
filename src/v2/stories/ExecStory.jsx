@@ -141,7 +141,7 @@ export default function ExecStory({ step }) {
 
       {step >= 6 && (
         <Block>
-          <Outcome text="Two days of digging became one question." sub="The numbers from Snowflake, the reasons from everywhere else, and $326K worth recovering." />
+          <Outcome text="Two days of digging became one question." sub="Numbers + reasons + $326K to recover." />
         </Block>
       )}
     </GleanFrame>

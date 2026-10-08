@@ -1,12 +1,25 @@
 import React, { useCallback, useEffect, useState } from "react";
 import claycoLogo from "../clayco_logo.png";
-import { stories, SCENARIO } from "../data/stories";
+import { stories } from "../data/stories";
 import { GleanLogo, StoryCtx, Avatar, Logo } from "./ui";
 import SceneBrief from "./SceneBrief";
 import ExecStory from "./stories/ExecStory";
 import FieldStory from "./stories/FieldStory";
 import DataStory from "./stories/DataStory";
 import SecurityStory from "./stories/SecurityStory";
+
+/* "**word**" in a caption becomes a highlighted pop */
+function renderPop(text) {
+  return text.split("**").map((part, i) =>
+    i % 2 ? (
+      <mark key={i} className="pop">
+        {part}
+      </mark>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
 
 const VIEWS = { exec: ExecStory, field: FieldStory, data: DataStory, security: SecurityStory };
 
@@ -81,7 +94,9 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
   }, [next, prev, onHome, setPlaying, briefOpen, startScene]);
 
   const caption = !started
-    ? `Meet ${story.name === "Security review" ? "the security review" : story.name.split(" ")[0]}. Read the scene brief, then start.`
+    ? story.person
+      ? `Meet **${story.name.split(" ")[0]}**.`
+      : "Meet **security**."
     : cur.outcome
     ? nextStory
       ? `Up next: ${nextStory.role}. "${nextStory.question}"`
@@ -131,13 +146,6 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
         </button>
       </div>
 
-      {/* Scenario strip */}
-      <div className="flex-shrink-0 px-4 sm:px-7 pb-2.5">
-        <div className="max-w-[1240px] mx-auto flex items-center gap-2 text-[12.5px] text-gray-500">
-          <span className="font-semibold text-gray-700">The scenario:</span> {SCENARIO}
-        </div>
-      </div>
-
       {/* Stage */}
       <div className="flex-1 min-h-0 px-4 sm:px-7">
         <div className="h-full max-w-[1240px] mx-auto">
@@ -165,7 +173,7 @@ export default function StoryPlayer({ storyIdx, playing, setPlaying, onHome, onO
 
           <div className="flex-1 min-w-0">
             <div key={`${storyIdx}-${step}`} className={`caption-in text-[18px] sm:text-[21px] font-semibold leading-snug ${cur.outcome ? "text-gray-500" : "text-[#14152B]"}`}>
-              {caption}
+              {renderPop(caption)}
             </div>
           </div>
 

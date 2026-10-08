@@ -161,7 +161,7 @@ export default function DataStory({ step }) {
 
       {step >= 5 && (
         <Block>
-          <Outcome text="Everyone who uses the concrete agent now gets the why, not just the what." sub="No new pipelines. Snowflake is still the source of truth for the numbers." />
+          <Outcome text="Your concrete agent now knows the why." sub="No new pipelines. Snowflake stays the source of truth." />
         </Block>
       )}
     </SnowflakeFrame>
