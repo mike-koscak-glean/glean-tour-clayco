@@ -1,45 +1,41 @@
-# Glean × Clayco — Vision Demo
+# Clayco × Glean × Snowflake: Vision Demo (v2)
 
-A personalized, scripted demo that simulates the Glean AI Assistant experience tailored for Clayco's CIO and innovation leadership team.
+A guided, click-through "what it would be like to use Glean" asset for Clayco.
+The theme: **Snowflake holds the numbers. Glean brings the context. Together, answers that act.**
 
-## What It Does
+All four stories share one fictional project: Riverbend Data Center, Building 2, where concrete is running over budget.
 
-This app walks viewers through four construction-specific personas, each with a pre-loaded query, an animated AI response with inline citations, a collapsible "Show work" trace, and source cards — demonstrating how Glean would work across Clayco's real systems.
+| # | Persona | Story | What it shows |
+|---|---------|-------|---------------|
+| 1 | Project Executive | "Why are we over on concrete at Riverbend?" | Snowflake numbers + reasons from RFIs, email, and WebEx in one cited answer; finds recoverable $; drafts the owner email |
+| 2 | Superintendent | "My new field engineer starts Monday. Get her set up." | Glean in Teams builds the kit, files the ServiceNow request, routes approval in Teams |
+| 3 | Data & AI Team | "Our agent knows the numbers. Can it know why?" | Snowflake Intelligence agent adds Glean as a tool; no pipelines or ACL rebuild |
+| 4 | CISO / IT Security | "Can AI leak the Northline dispute?" | Same question, three people, three correct answers; permission matrix |
 
-## Personas
+All people, projects, suppliers, and numbers are fictional. There is no Procore on screen.
 
-| Persona | Role | Key Systems |
-|---------|------|------------|
-| **IT / Service Desk** | Director of IT Services | ServiceNow, Okta, SharePoint, Teams |
-| **Project / Field Ops** | Project Manager / Superintendent | Procore, Teams, Outlook |
-| **Preconstruction / Biz Dev** | Pursuit Lead / Preconstruction Director | SharePoint, Procore, Teams, Web |
-| **Executive / Innovation** | CIO / VP Innovation | ServiceNow, Procore, Teams, SharePoint |
+## Routes
 
-## Deep Links
+- `/`: landing page
+- `/project-executive`, `/superintendent`, `/data-team`, `/security`: stories
+- `/next-step`: close and the proposed 30-day side-by-side
 
-Each persona has a direct URL:
+## Recording the video
 
-- `/it` — IT / Service Desk
-- `/project` — Project / Field Ops
-- `/preconstruction` — Preconstruction / Biz Dev
-- `/executive` — Executive / Innovation
+- `?autoplay=1` plays every story back to back, then the close.
+- `?clean=1` hides the player controls. Captions stay.
+- Keyboard: `→` / `Space` next, `←` back, `P` play/pause, `Esc` home.
 
-## Local Development
+Example: `/?autoplay=1&clean=1`
+
+## Develop
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173).
-
-## Deploy
-
-Deployed on Vercel. Push to `main` to trigger a new deployment.
-
-```bash
-npm run build
-```
+Story script and captions: `src/data/stories.js`. Story screens: `src/v2/stories/`.
 
 ---
 

@@ -1,106 +1,107 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
-import NavSidebar from "./components/NavSidebar";
-import GleanHome from "./components/GleanHome";
-import GleanChat from "./components/GleanChat";
-import IntroModal from "./components/IntroModal";
-import PersonaSelect from "./components/PersonaSelect";
-import { flows } from "./data/conversations";
+import { stories, CLOSE_SLUG } from "./data/stories";
+import Landing from "./v2/Landing";
+import StoryPlayer from "./v2/StoryPlayer";
+import Close from "./v2/Close";
 
-/** Map a URL pathname like "/sales" → flow index, or null for unknown/root */
-function personaIdxFromPath(pathname) {
-  const slug = pathname.replace(/^\//, "").toLowerCase();
-  const idx = flows.findIndex((f) => f.id === slug);
-  return idx >= 0 ? idx : null;
+/*
+ * Routes
+ *   /                     landing
+ *   /project-executive    story 1   (/superintendent, /data-team, /security)
+ *   /next-step            close
+ *
+ * Query flags (handy for recording the marketing video)
+ *   ?autoplay=1   play every story back-to-back, then the close
+ *   ?clean=1      hide player controls (captions stay)
+ */
+
+const params = new URLSearchParams(window.location.search);
+const AUTOPLAY = params.has("autoplay");
+const CLEAN = params.has("clean");
+
+function routeFromPath(pathname) {
+  const slug = pathname.replace(/^\/|\/$/g, "").toLowerCase();
+  if (slug === CLOSE_SLUG) return { view: "close" };
+  const idx = stories.findIndex((s) => s.slug === slug || s.id === slug);
+  if (idx >= 0) return { view: "story", idx };
+  return { view: "home" };
+}
+
+function push(path) {
+  const qs = window.location.search;
+  if (window.location.pathname !== path) window.history.pushState({}, "", path + qs);
 }
 
 export default function App() {
-  // Initialise from the URL so deep-links like /sales work directly
-  const [selectedPersona, setSelectedPersona] = useState(() =>
-    personaIdxFromPath(window.location.pathname)
-  );
-  const [view, setView] = useState("home"); // "home" | "chat"
-  const [showIntro, setShowIntro] = useState(true);
+  const [route, setRoute] = useState(() => routeFromPath(window.location.pathname));
+  const [playing, setPlaying] = useState(AUTOPLAY);
 
-  // Handle browser back/forward navigation
   useEffect(() => {
-    const onPopState = () => {
-      const idx = personaIdxFromPath(window.location.pathname);
-      if (idx === null) {
-        // Back to root — reset to persona selection
-        setSelectedPersona(null);
-        setView("home");
-        setShowIntro(true);
-      } else {
-        setSelectedPersona(idx);
-      }
-    };
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    const onPop = () => setRoute(routeFromPath(window.location.pathname));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  const handlePersonaSelect = useCallback((idx) => {
-    setSelectedPersona(idx);
+  const openStory = useCallback((idx) => {
+    push(`/${stories[idx].slug}`);
+    setRoute({ view: "story", idx });
   }, []);
 
-  const handleRun = useCallback(() => {
-    setView("chat");
+  const goHome = useCallback(() => {
+    push("/");
+    setPlaying(false);
+    setRoute({ view: "home" });
   }, []);
 
-  const handleIntroDismiss = useCallback(() => {
-    setShowIntro(false);
+  const goClose = useCallback(() => {
+    push(`/${CLOSE_SLUG}`);
+    setPlaying(false);
+    setRoute({ view: "close" });
   }, []);
 
-  const handleRestart = useCallback(() => {
-    window.history.pushState({}, "", "/");
-    setSelectedPersona(null);
-    setView("home");
-    setShowIntro(true);
-  }, []);
+  const playAll = useCallback(() => {
+    setPlaying(true);
+    openStory(0);
+  }, [openStory]);
 
-  // Show persona selection page when no persona is chosen
-  if (selectedPersona === null) {
-    return (
-      <>
-        <PersonaSelect onSelect={handlePersonaSelect} />
-        <Analytics />
-      </>
+  // Autoplay from the landing page after a short beat
+  useEffect(() => {
+    if (AUTOPLAY && route.view === "home") {
+      const t = setTimeout(() => openStory(0), 4500);
+      return () => clearTimeout(t);
+    }
+  }, [route.view, openStory]);
+
+  const finishStory = useCallback(() => {
+    if (route.view !== "story") return;
+    if (route.idx < stories.length - 1) openStory(route.idx + 1);
+    else goClose();
+  }, [route, openStory, goClose]);
+
+  let body;
+  if (route.view === "story") {
+    body = (
+      <StoryPlayer
+        key={route.idx}
+        storyIdx={route.idx}
+        playing={playing}
+        setPlaying={setPlaying}
+        onHome={goHome}
+        onOpen={openStory}
+        onFinishStory={finishStory}
+        clean={CLEAN}
+      />
     );
+  } else if (route.view === "close") {
+    body = <Close onOpen={openStory} onHome={goHome} />;
+  } else {
+    body = <Landing onOpen={openStory} onPlayAll={playAll} />;
   }
-
-  const activeFlow = flows[selectedPersona];
 
   return (
     <>
-      <div className="h-screen w-screen flex font-inter overflow-hidden bg-white">
-        {/* Left icon navigation — hidden on mobile */}
-        <div className="hidden md:block">
-          <NavSidebar activeView={view} />
-        </div>
-
-        {/* Main content area */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
-          {view === "home" ? (
-            <div className="flex-1 flex flex-col h-full">
-              <GleanHome
-                onRun={handleRun}
-                showGuide={!showIntro}
-                greeting={activeFlow.greeting}
-                userQuery={activeFlow.userQuery}
-              />
-              {/* Footer on homepage */}
-              <p className="text-[11px] text-gray-400 text-center pb-3 flex-shrink-0">
-                Prepared for Clayco by the Glean team
-              </p>
-            </div>
-          ) : (
-            <GleanChat flow={activeFlow} onRestart={handleRestart} />
-          )}
-        </div>
-      </div>
-
-      {/* Intro modal — shows above everything */}
-      {showIntro && <IntroModal onDismiss={handleIntroDismiss} />}
+      {body}
       <Analytics />
     </>
   );

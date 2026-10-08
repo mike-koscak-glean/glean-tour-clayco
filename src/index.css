@@ -268,3 +268,42 @@ html, body, #root {
 .ai-response li {
   margin-bottom: 0.25em;
 }
+
+/* ═══════════ v2: Clayco × Glean × Snowflake ═══════════ */
+body { background: #FAF8F4; -webkit-font-smoothing: antialiased; }
+
+.cite {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; line-height: 1;
+  margin-left: 3px; vertical-align: 2px;
+}
+.cite-num { background: #E1F4FB; color: #0B6E99; }
+.cite-ctx { background: #E7E8FD; color: #343CED; }
+
+.bar-grow { transform-origin: bottom; transition: transform 0.7s cubic-bezier(.2,.8,.2,1); }
+
+@keyframes captionIn {
+  from { opacity: 0; transform: translateY(6px); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.caption-in { animation: captionIn 0.45s ease-out both; }
+
+@keyframes popIn {
+  0% { opacity: 0; transform: translateY(14px) scale(0.97); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pop-in { animation: popIn 0.6s cubic-bezier(.2,.8,.2,1) both; }
+
+@keyframes nextPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 60, 237, 0.45); }
+  50% { box-shadow: 0 0 0 10px rgba(52, 60, 237, 0); }
+}
+.next-pulse { animation: nextPulse 1.8s ease-out infinite; }
+
+@keyframes ctaIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cta-in { animation: ctaIn 0.4s 0.5s cubic-bezier(.2,.8,.2,1) both, nextPulse 1.8s 1s ease-out infinite; }
